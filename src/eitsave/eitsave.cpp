@@ -11,7 +11,7 @@ using namespace std;
 
 static void SaveEIT(const char *ref, const char *filename, int  eit_event_id, time_t begTime, time_t endTime)
 {
-	eEPGCache::getInstance()->();
+	eEPGCache::getInstance()->Lock();
 	ePtr<eServiceEvent> event = 0;
 	eServiceReference mref = eServiceReference(ref);
 	std::string sref = ref;
@@ -38,7 +38,7 @@ static void SaveEIT(const char *ref, const char *filename, int  eit_event_id, ti
 	{
 		eDebug("[EITSave] found event.. store to disc");
 		uint8_t eit_raw[4096];
-		size_t eit_len = event->(eit_raw);
+		size_t eit_len = event->writeToEITBuffer(eit_raw);
 		eDebug("found event.. store to disc");
 		int fd = open(filename, O_CREAT | O_WRONLY | O_CLOEXEC, 0777);
 		if(fd > -1)
@@ -51,7 +51,7 @@ static void SaveEIT(const char *ref, const char *filename, int  eit_event_id, ti
 	}
 	else
 		eDebug("[EITSave] no event found...");
-	eEPGCache::getInstance()->();
+	eEPGCache::getInstance()->Unlock();
 }
 
 extern "C" {
